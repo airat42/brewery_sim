@@ -1,0 +1,61 @@
+{% extends "beer/base.html" %}
+{% block title %}Склад — Brewery Sim{% endblock %}
+
+{% block content %}
+<h1>Склад</h1>
+
+<h2>Хмель</h2>
+{% if hops_inv %}
+<table>
+    <tr><th>Название</th><th>Кол-во</th><th>Горечь</th><th>Альфа-кислота</th><th>Свежесть</th></tr>
+    {% for h in hops_inv %}
+    <tr>
+        <td>{{ h.hop.name }}</td>
+        <td>{{ h.quantity }} грамм</td>
+        <td>{{ h.hop.bitter_or_smell }}</td>
+        <td>{{ h.hop.a_acid }}%</td>
+        <td>{{ h.freshness }}%</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>Нет хмеля</p>
+{% endif %}
+
+<h2>Солод</h2>
+{% if malts_inv %}
+<table>
+    <tr><th>Название</th><th>Кол-во</th><th>Цвет</th><th>Сахар</th><th>Свежесть</th></tr>
+    {% for m in malts_inv %}
+    <tr>
+        <td>{{ m.malt.name }}</td>
+        <td>{{ m.quantity }} кг</td>
+        <td>{{ m.malt.color }}</td>
+        <td>{{ m.malt.sugar }}</td>
+        <td>{{ m.freshness }}%</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>Нет солода</p>
+{% endif %}
+
+<h2>Дрожжи</h2>
+{% if yeasts_inv %}
+<table>
+    <tr><th>Название</th><th>Кол-во</th><th>Темп. мин</th><th>Темп. макс</th><th>Свежесть</th></tr>
+    {% for y in yeasts_inv %}
+    <tr>
+        <td>{{ y.yeast.name }}</td>
+        <td>{{ y.quantity }} грамм</td>
+        <td>{{ y.yeast.temp_min }}</td>
+        <td>{{ y.yeast.temp_max }}</td>
+        <td>{{ y.freshness }}%</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>Нет дрожжей</p>
+{% endif %}
+
+{% endblock %}

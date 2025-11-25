@@ -1,0 +1,132 @@
+{% extends "beer/base.html" %}
+{% block title %}Магазин — Brewery Sim{% endblock %}
+
+{% block content %}
+
+<style>
+    .shop-container {
+        max-width: 900px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .shop-title {
+        font-size: 36px;
+        margin-bottom: 25px;
+        color: #ffe082;
+        text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+    }
+
+    .shop-grid {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 25px;
+    }
+
+    /* Обертка, которая делает карточку ссылкой */
+    .shop-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .shop-card {
+        width: 220px;
+        background: #2d2d2d;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        transition: 0.25s ease-in-out;
+        border: 1px solid #444;
+        text-align: center;
+    }
+
+    .shop-card:hover {
+        transform: scale(1.05);
+        background: #3a3a3a;
+        border-color: #6d9eeb;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+        cursor: pointer;
+    }
+
+    .shop-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+        color: #fff176;
+    }
+
+    .shop-card-title {
+        text-decoration: none;
+        color: #ffeb3b;
+        font-size: 22px;
+        font-weight: bold;
+    }
+</style>
+
+
+<div class="shop-container">
+    <h1 class="shop-title">🛒 Магазин ингредиентов</h1>
+
+    <div class="shop-grid">
+
+        <a class="shop-link" href="{% url 'shop_hops' %}">
+            <div class="shop-card">
+                <div class="shop-icon">🌿</div>
+                <div class="shop-card-title">Хмель</div>
+            </div>
+        </a>
+
+        <a class="shop-link" href="{% url 'shop_malts' %}">
+            <div class="shop-card">
+                <div class="shop-icon">🌾</div>
+                <div class="shop-card-title">Солод</div>
+            </div>
+        </a>
+
+        <a class="shop-link" href="{% url 'shop_yeasts' %}">
+            <div class="shop-card">
+                <div class="shop-icon">🧫</div>
+                <div class="shop-card-title">Дрожжи</div>
+            </div>
+        </a>
+
+    </div>
+</div>
+
+<div class="shop-container">
+    <h1 class="shop-title">🛒 Магазин Оборудования</h1>
+
+    <div class="shop-grid">
+
+        <a class="shop-link" href="{% url 'shop_brewers' %}">
+            <div class="shop-card">
+                <div class="shop-icon">🛢</div>
+                <div class="shop-card-title">Пивоварни</div>
+            </div>
+        </a>
+
+        <a class="shop-link" href="{% url 'shop_malts' %}">
+            <div class="shop-card">
+                <div class="shop-icon">🫙</div>
+                <div class="shop-card-title">ЦКТ</div>
+            </div>
+        </a>
+
+        <a class="shop-link" href="{% url 'shop_yeasts' %}">
+            <div class="shop-card">
+                <div class="shop-icon">✂️</div>
+                <div class="shop-card-title">Дробилки</div>
+            </div>
+        </a>
+
+        <a class="shop-link" href="{% url 'shop_yeasts' %}">
+            <div class="shop-card">
+                <div class="shop-icon">🍾</div>
+                <div class="shop-card-title">Тара</div>
+            </div>
+        </a>
+    </div>
+</div>
+
+{% endblock %}

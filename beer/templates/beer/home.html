@@ -1,0 +1,160 @@
+{% extends "beer/base.html" %}
+{% block title %}Главная · Brewery Sim{% endblock %}
+
+{% block content %}
+
+<div class="main-wrapper">
+
+    <!-- ФИКСИРОВАННАЯ боковая панель -->
+    <div class="side-panel fixed">
+        <h2>Текущая дата:</h2>
+        <p class="current-date">{{ state.current_date }}</p>
+
+        <h3>Перемотать время:</h3>
+
+        <div class="time-buttons">
+            <a class="button" href="{% url 'add_days' 1 %}">+1 день</a>
+            <a class="button" href="{% url 'add_days' 7 %}">+7 дней</a>
+            <a class="button" href="{% url 'add_days' 30 %}">+30 дней</a>
+        </div>
+    </div>
+
+    <!-- ЦЕНТРАЛЬНЫЙ БОЛЬШОЙ БЛОК -->
+    <div class="main-grid-card">
+        <div class="menu-grid">
+            <a href="{% url 'brew' %}" class="menu-card">
+                <div class="menu-image" style="background-image: url('{{ brewer_image }}'); background-size: cover; background-position: center; height: 200px;"></div>
+                <div class="menu-label">Пивоварня (скоро)</div>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<style>
+/* Заголовок */
+.home-title {
+    text-align: center;
+    font-size: 36px;
+    margin-bottom: 35px;
+    color: #333;
+    font-weight: 800;
+}
+
+/* Обёртка для центровки */
+.main-wrapper {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+/* ФИКСИРОВАННАЯ боковая панель */
+.side-panel.fixed {
+    position: fixed;
+    right: 5px;
+    top: 140px;
+    width: 250px;
+
+    background: #ffe082;
+    color: #000000;
+    border-radius: 16px;
+    padding: 20px 25px;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.side-panel h2 {
+    margin-bottom: 5px;
+}
+
+.current-date {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.time-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.time-buttons .button {
+    text-align: center;
+    padding: 10px 0;
+    background: #000000;
+    color: #fff;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.time-buttons .button:hover {
+    background: #357ac9;
+}
+
+/* Центральный блок */
+.main-grid-card {
+    width: 900px;
+    padding: 30px 40px;
+    background: #fff;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+}
+
+/* Заголовок блока */
+.section-title {
+    font-size: 28px;
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+/* Сетка меню */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 25px;
+}
+
+/* Карточка */
+.menu-card {
+    display: flex;
+    flex-direction: column;
+    width: 260px;          /* фиксированная ширина */
+    height: 300px;         /* фиксированная высота */
+    border-radius: 16px;
+    overflow: hidden;
+    background: white;
+    border: 1px solid #e3e3e3;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    text-decoration: none;
+    transition: 0.25s ease-in-out;
+}
+
+.menu-image {
+    flex: 1;               /* изображение занимает пространство */
+    min-height: 0;
+    background-size: cover;
+    background-position: center;
+}
+
+.menu-label {
+    text-align: center;
+    padding: 12px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #222;
+    background: #fff;
+}
+
+.menu-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.15);
+}
+
+</style>
+
+{% endblock %}

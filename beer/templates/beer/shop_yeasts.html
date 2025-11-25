@@ -1,0 +1,22 @@
+{% extends "beer/base.html" %}
+{% block content %}
+
+<h1>Магазин: Дрожжи</h1>
+
+<table>
+    <tr>
+        <th>Название</th>
+        <th>Описание</th>
+        <th>Цена</th>
+    </tr>
+
+    {% for item in items %}
+    <tr>
+        <td><a href="{% url 'yeast_detail' item.id %}">{{ item.name }}</a></td>
+        <td>{{ item.description }}</td>
+        <td>{{ item.price }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "beer/base.html" %}
+{% block content %}
+
+<h1>Магазин: Хмель</h1>
+
+<table>
+    <tr>
+        <th>Название</th>
+        <th>Аромат</th>
+        <th>Горечь/Аромат</th>
+        <th>A-кислоты</th>
+    </tr>
+
+    {% for item in items %}
+    <tr>
+        <td><a href="{% url 'hop_detail' item.id %}">{{ item.name }}</a></td>
+        <td>{{ item.smell }}</td>
+        <td>{{ item.bitter_or_smell }}</td>
+        <td>{{ item.a_acid }}</td>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

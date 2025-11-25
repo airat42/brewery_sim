@@ -1,0 +1,22 @@
+{% extends "beer/base.html" %}
+{% block title %}Варка пива — Brewery Sim{% endblock %}
+
+{% block content %}
+<h1>Варка пива</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    <label>Рецепт:</label><br>
+    <select name="recipe">
+        {% for rec in recipes %}
+        <option value="{{ rec.id }}">{{ rec.name }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label>Объем (литры):</label><br>
+    <input type="number" name="volume" min="1" value="10"><br><br>
+
+    <button class="button" type="submit">Начать варку</button>
+</form>
+{% endblock %}

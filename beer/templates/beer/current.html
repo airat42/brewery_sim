@@ -1,0 +1,28 @@
+{% extends "beer/base.html" %}
+{% block title %}Текущие варки — Brewery Sim{% endblock %}
+
+{% block content %}
+<h1>Текущие варки</h1>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Рецепт</th>
+        <th>Статус</th>
+        <th>Объем (л)</th>
+        <th>Дата начала</th>
+    </tr>
+
+    {% for beer in beers %}
+    <tr>
+        <td>{{ beer.id }}</td>
+        <td>{{ beer.recipe.name }}</td>
+        <td>{{ beer.status }}</td>
+        <td>{{ beer.volume }}</td>
+        <td>{{ beer.date_created }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<a class="button" href="{% url 'brew' %}">Новая варка</a>
+{% endblock %}
