@@ -1,0 +1,497 @@
+{% extends "beer/base.html" %}
+{% load beer_filters %}
+{% block title %}Редактирование рецепта — {{ recipe.name }}{% endblock %}
+
+{% block content %}
+
+<h1 class="page-title">Редактирование рецепта: {{ recipe.name }}</h1>
+
+<div class="edit-container">
+
+    <!-- Ингредиенты -->
+    <div class="ingredients-section">
+        <h2>Ингредиенты</h2>
+
+        <h3>Солод</h3>
+        <div id="malt-list"></div>
+        <button type="button" class="button" onclick="addMalt()">Добавить солод</button>
+
+        <h3>Хмель</h3>
+        <div class="ingredient-header">
+            <span class="header-name">Название</span>
+            <span class="header-qty">г</span>
+            <span class="header-time">минуты</span>
+        </div>
+        <div id="hop-list"></div>
+        <button type="button" class="button" onclick="addHop()">Добавить хмель</button>
+
+        <h3>Дрожжи</h3>
+        <div id="yeast-list"></div>
+        <button type="button" class="button" onclick="addYeast()" id="btn-add-yeast">Добавить дрожжи</button>
+    </div>
+
+    <!-- Характеристики -->
+    <div class="calc-section">
+        <h2>Характеристики</h2>
+        <div class="calc-row">
+            <span class="calc-label">Объём партии:</span>
+            <input type="number" id="volume_input" value="20" min="1" style="width:80px;">
+            <span style="margin-left:5px;">литров</span>
+        </div>
+
+        <div class="calc-box">
+            <div class="calc-row">
+                <span class="calc-label">Алкоголь:</span>
+                <span class="calc-value" id="alc_val">{{ recipe.alcohol|default:"0" }}</span> %
+            </div>
+
+            <div class="calc-row">
+                <span class="calc-label">Цветность:</span>
+                <div class="color-bar" style="background-color: {{ recipe.color|srm_to_hex }}"></div>
+                <span class="calc-value" id="color_text">{{ recipe.color|default:"0" }}</span> SRM
+            </div>
+
+            <div class="calc-row">
+                <span class="calc-label">Горечь:</span>
+                <span class="calc-value" id="ibu_val">{{ recipe.ibu|default:"0" }}</span> IBU
+            </div>
+            <div class="calc-box">
+
+            <div class="calc-row">
+                <span class="calc-label">Начальная плотность:</span>
+                <span class="calc-value" id="og_val">{{ recipe.start_plato|default:"0" }}</span> %
+            </div>
+
+            <div class="calc-row">
+                <span class="calc-label">Конечная плотность:</span>
+                <span class="calc-value" id="fg_val">{{ recipe.final_plato|default:"0" }}</span> %
+            </div>
+
+            <div class="calc-row">
+                <span class="calc-label">Карбонизация:</span>
+                <span class="calc-value" id="carbon_val">{{ recipe.carbon|default:"0" }}</span> CO₂
+            </div>
+        </div>
+
+        <button class="button-large" id="btn-calc">Рассчитать</button>
+        <button class="button-large button-green" id="btn-save" onclick="success()">Сохранить рецепт</button>
+    </div>
+
+</div>
+
+<!-- Передача инвентаря в JS -->
+{{ hop|json_script:"hop" }}
+{{ malt|json_script:"malt" }}
+{{ yeast|json_script:"yeast" }}
+
+{{ recipe_malts|json_script:"recipe_malts" }}
+{{ recipe_hops|json_script:"recipe_hops" }}
+{{ recipe_yeasts|json_script:"recipe_yeasts" }}
+
+<script>
+const hop = JSON.parse(document.getElementById("hop").textContent);
+const malt = JSON.parse(document.getElementById("malt").textContent);
+const yeast = JSON.parse(document.getElementById("yeast").textContent);
+
+const recipeMalts = JSON.parse(document.getElementById("recipe_malts").textContent);
+const recipeHops = JSON.parse(document.getElementById("recipe_hops").textContent);
+const recipeYeasts = JSON.parse(document.getElementById("recipe_yeasts").textContent);
+
+function success() {
+    alert("Успешно");
+}
+
+function createSelect(id, items, key_name) {
+    const select = document.createElement("select");
+    select.name = id + "_id[]";
+    items.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item.id;
+        opt.textContent = item[key_name] + " (x" + item.quantity + ")";
+        select.appendChild(opt);
+    });
+    return select;
+}
+
+function createQuantityInput(id) {
+    const input = document.createElement("input");
+    input.type = "number";
+    input.name = id + "_qty[]";
+    input.min = 1;
+    input.value = 1;
+    return input;
+}
+
+function addRow(containerId, inv, id, key_name) {
+    const box = document.createElement("div");
+    box.className = "ingredient-row";
+    box.appendChild(createSelect(id, inv, key_name));
+    box.appendChild(createQuantityInput(id));
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.textContent = "✖";
+    del.onclick = () => box.remove();
+
+    box.appendChild(del);
+    document.getElementById(containerId).appendChild(box);
+}
+
+function addHop() {
+    const box = document.createElement("div");
+    box.className = "ingredient-row";
+
+    // выбор хмеля
+    const select = createSelect("hop", hop, "name");
+    box.appendChild(select);
+
+    // количество
+    const qty = createQuantityInput("hop");
+    box.appendChild(qty);
+
+    // время в минутах
+    const time = document.createElement("select");
+    time.name = "hop_time[]";
+    time.style.width = "70px";
+
+    [5, 10, 15, 20, 30, 40, 60, 90].forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v;
+        opt.textContent = v;
+        time.appendChild(opt);
+    });
+
+    box.appendChild(time);
+
+    // delete button
+    const del = document.createElement("button");
+    del.type = "button";
+    del.textContent = "✖";
+    del.onclick = () => box.remove();
+    box.appendChild(del);
+
+    document.getElementById("hop-list").appendChild(box);
+}
+function addMalt() { addRow("malt-list", malt, "malt", "name"); }
+function addYeast() {
+
+    const container = document.getElementById("yeast-list");
+
+    // Если дрожжи уже есть — ничего не добавляем
+    if (container.children.length > 0) return;
+
+    const box = document.createElement("div");
+    box.className = "ingredient-row";
+
+    box.appendChild(createSelect("yeast", yeast, "name"));
+    box.appendChild(createQuantityInput("yeast"));
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.textContent = "✖";
+    del.onclick = () => box.remove();
+
+    box.appendChild(del);
+
+    container.appendChild(box);
+}
+
+function collectFormData() {
+
+    function collect(prefix) {
+        const ids = [...document.querySelectorAll(`select[name="${prefix}_id[]"]`)].map(el => el.value);
+        const qty = [...document.querySelectorAll(`input[name="${prefix}_qty[]"]`)].map(el => el.value);
+
+        // специальные поля
+        if (prefix === "hop") {
+            const times = [...document.querySelectorAll(`select[name="hop_time[]"]`)].map(el => el.value);
+            return ids.map((id, i) => ({
+                id,
+                quantity: qty[i],
+                time: times[i]
+            }));
+        }
+
+        // обычные ингредиенты
+        return ids.map((id, i) => ({
+            id,
+            quantity: qty[i]
+        }));
+    }
+
+    return {
+        hops: collect("hop"),
+        malts: collect("malt"),
+        yeast: (function() {
+            const ids = [...document.querySelectorAll(`select[name="yeast_id[]"]`)].map(el => el.value);
+            const qty = [...document.querySelectorAll(`input[name="yeast_qty[]"]`)].map(el => el.value);
+
+            if (ids.length === 0) return null;
+
+            return {
+                id: ids[0],
+                quantity: qty[0]
+            };
+        })(),
+        volume: document.getElementById("volume_input").value
+    };
+}
+
+// Реалистичная SRM -> RGB через интерполяцию между опорными цветами
+function srmToBeerColor(srm) {
+    srm = parseFloat(srm) || 0;
+    if (srm < 1) srm = 1;
+    if (srm > 40) srm = 40;
+
+    // Опорные цвета (подбирал под визуально реалистичную шкалу)
+    const anchors = [
+        { s: 1,  rgb: [250,246,170] }, // очень светлое (солома)
+        { s: 5,  rgb: [245,180,70]  }, // золотое
+        { s: 10, rgb: [210,120,40]  }, // янтарь / медь
+        { s: 15, rgb: [170,90,40]   }, // медное
+        { s: 20, rgb: [120,60,30]   }, // красно-коричневое
+        { s: 30, rgb: [60,30,15]    }, // тёмно-коричневое
+        { s: 40, rgb: [10,8,5]      }  // почти чёрное
+    ];
+
+    // найти соседние опоры
+    let low = anchors[0], high = anchors[anchors.length-1];
+    for (let i = 0; i < anchors.length - 1; i++) {
+        if (srm >= anchors[i].s && srm <= anchors[i+1].s) {
+            low = anchors[i];
+            high = anchors[i+1];
+            break;
+        }
+    }
+
+    // нормализованный параметр t в [0,1]
+    const t = (srm - low.s) / (high.s - low.s);
+
+    // линейная интерполяция RGB
+    const r = Math.round(low.rgb[0] + (high.rgb[0] - low.rgb[0]) * t);
+    const g = Math.round(low.rgb[1] + (high.rgb[1] - low.rgb[1]) * t);
+    const b = Math.round(low.rgb[2] + (high.rgb[2] - low.rgb[2]) * t);
+
+    return `rgb(${r}, ${g}, ${b})`;
+}
+
+function fillExistingMalts() {
+    recipeMalts.forEach(m => {
+        const box = document.createElement("div");
+        box.className = "ingredient-row";
+
+        // select
+        const select = createSelect("malt", malt, "name");
+        select.value = m.malt__id;
+        box.appendChild(select);
+
+        // qty
+        const qty = createQuantityInput("malt");
+        qty.value = m.weight_per_liter;
+        box.appendChild(qty);
+
+        // delete
+        const del = document.createElement("button");
+        del.type = "button";
+        del.textContent = "✖";
+        del.onclick = () => box.remove();
+        box.appendChild(del);
+
+        document.getElementById("malt-list").appendChild(box);
+    });
+}
+
+function fillExistingHops() {
+    recipeHops.forEach(h => {
+        const box = document.createElement("div");
+        box.className = "ingredient-row";
+
+        const select = createSelect("hop", hop, "name");
+        select.value = h.hop__id;
+        box.appendChild(select);
+
+        const qty = createQuantityInput("hop");
+        qty.value = h.weight_per_liter;
+        box.appendChild(qty);
+
+        // время — только фиксированные значения
+        const time = document.createElement("select");
+        time.name = "hop_time[]";
+
+        [5,10,15,20,30,40,60,90].forEach(v => {
+            const opt = document.createElement("option");
+            opt.value = v;
+            opt.textContent = v;
+            time.appendChild(opt);
+        });
+        time.value = h.time;
+        box.appendChild(time);
+
+        const del = document.createElement("button");
+        del.type = "button";
+        del.textContent = "✖";
+        del.onclick = () => box.remove();
+        box.appendChild(del);
+
+        document.getElementById("hop-list").appendChild(box);
+    });
+}
+
+function fillExistingYeast() {
+    if (recipeYeasts.length === 0) return;
+
+    const y = recipeYeasts[0];
+
+    const box = document.createElement("div");
+    box.className = "ingredient-row";
+
+    const select = createSelect("yeast", yeast, "name");
+    select.value = y.yeast__id;
+    box.appendChild(select);
+
+    const qty = createQuantityInput("yeast");
+    qty.value = y.weight_per_liter;
+    box.appendChild(qty);
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.textContent = "✖";
+    del.onclick = () => box.remove();
+    box.appendChild(del);
+
+    document.getElementById("yeast-list").appendChild(box);
+}
+
+// Кнопка "Рассчитать"
+document.getElementById("btn-calc").onclick = function() {
+    const formData = collectFormData();
+
+    fetch("{% url 'recipe_calculate' recipe.name %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(r => r.json())
+    .then(data => {
+    // Алкоголь
+    document.getElementById("alc_val").textContent = data.alcohol || 0;
+
+    // OG
+    document.getElementById("og_val").textContent = data.og || 0;
+
+    // FG
+    document.getElementById("fg_val").textContent = data.fg || 0;
+
+    // Цветность
+    document.querySelector(".color-bar").style.backgroundColor = srmToBeerColor(data.color || 0);
+    document.getElementById("color_text").textContent = data.color || 0;
+
+    // Горечь
+    document.getElementById("ibu_val").textContent = data.ibu || 0;
+
+    // Карбонизация
+    document.getElementById("carbon_val").textContent = data.carbon || 0;
+});
+};
+
+// Кнопка "Создать рецепт"
+document.getElementById("btn-save").onclick = function() {
+    const formData = collectFormData();
+
+    fetch("{% url 'recipe_submit' recipe.name %}", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify(formData)
+    });
+    alert("Рецепт успешно сохранен");
+};
+
+fillExistingMalts();
+fillExistingHops();
+fillExistingYeast();
+</script>
+
+<style>
+.edit-container { display: flex; gap: 40px; margin-top: 20px; }
+.ingredients-section { flex: 2; }
+.calc-section { flex: 1; }
+.ingredient-header {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #444;
+    padding-left: 2px;
+}
+.header-name {
+    width: 180px;
+}
+.ingredient-row input[type="number"] {
+    width: 70px;
+    text-align: right;
+}
+
+.ingredient-row select {
+    width: 180px;
+}
+.calc-box {
+    padding: 15px;
+    background: #f3f3f3;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: #111; /* тёмный текст */
+}
+
+.calc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.calc-label {
+    font-weight: 600;
+    flex: 1;
+}
+.header-name {
+    width: 180px;
+}
+
+.header-qty {
+    width: 70px;
+    text-align: center;
+}
+
+.header-time {
+    width: 70px;
+    text-align: center;
+}
+.calc-value {
+    width: 80px;
+    text-align: right;
+    color: #111; /* тёмный текст */
+}
+
+.color-bar {
+    width: 50px;
+    height: 20px;
+    border-radius: 4px;
+    margin-right: 10px;
+    flex-shrink: 0;
+    border: 1px solid #888;
+}
+
+.button-large { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: none; background: #4a7bd8; color: white; cursor: pointer; }
+.button-large:hover { background: #3a6ac0; }
+.button-green { background: #4caf50; }
+.button-green:hover { background: #3e8c41; }
+</style>
+
+{% endblock %}

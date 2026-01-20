@@ -1,0 +1,30 @@
+{% extends "beer/base.html" %}
+{% block content %}
+
+<h1>Магазин: Дробилки</h1>
+
+<table>
+    <tr>
+        <th>Название</th>
+        <th>Объём</th>
+        <th>Цена</th>
+        <th>Купить</th>
+    </tr>
+
+    {% for item in items %}
+    <tr>
+        <td>{{ item.name }}</td>
+        <td>{{ item.volume }} л</td>
+        <td>{{ item.price }} руб</td>
+        <td>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="mill_id" value="{{ item.id }}">
+                <button type="submit">Купить</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
